@@ -1,0 +1,40 @@
+steps:
+  # 1. Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/genai-app-startupvaluationsummary-prototype/genai-app-startupvaluationsummary-p-1-17852309392:$SHORT_SHA'
+      - '.'
+
+  # 2. Push the image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/genai-app-startupvaluationsummary-prototype/genai-app-startupvaluationsummary-p-1-17852309392:$SHORT_SHA'
+
+  # 3. Terraform init
+  - name: 'hashicorp/terraform:1.5.0'
+    id: 'Terraform Init'
+    args: ['init']
+
+  # 4. Terraform plan - captured as an artifact so apply runs exactly what was reviewed
+  - name: 'hashicorp/terraform:1.5.0'
+    id: 'Terraform Plan'
+    args:
+      - 'plan'
+      - '-var=image_tag=$SHORT_SHA'
+      - '-out=tfplan'
+
+  # 5. Terraform apply - applies the saved plan, not a freshly recomputed one
+  - name: 'hashicorp/terraform:1.5.0'
+    id: 'Terraform Apply'
+    args: ['apply', '-auto-approve', 'tfplan']
+
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/genai-app-startupvaluationsummary-prototype/genai-app-startupvaluationsummary-p-1-17852309392:$SHORT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
