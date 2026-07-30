@@ -21,11 +21,7 @@ def generate(
     request: gr.Request
 ):
   """Function to call the model based on the request."""
-
-  validate_key_result = utils.validate_key(request)
-  if validate_key_result is not None:
-    yield validate_key_result
-    return
+  utils.validate_key(request)                   # raises gr.Error on failure
 
   client = genai.Client(                        # Instantiate the client object using the Google GenAI Python SDK
       vertexai=True,                            # This flag switches the backend from Gemini API to Google Cloud Vertex AI
@@ -119,7 +115,7 @@ Strictly adhere to the following guidelines:
       if results:
         yield results
 
-with gr.Blocks(theme=utils.custom_theme) as demo:
+with gr.Blocks(theme=utils.custom_theme, head=utils.firebase_head) as demo:
   with gr.Row():
     gr.HTML(utils.public_access_warning)
   with gr.Row():

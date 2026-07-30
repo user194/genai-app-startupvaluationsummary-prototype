@@ -74,8 +74,16 @@ resource "google_cloud_run_v2_service" "app" {
 }
 
 # ---------------------------------------------------------------------------
-# 3. Public access — explicit, conscious decision (matches current public app)
-#    Change to remove this block once you add an auth layer (IAP/Firebase Auth).
+# 3. Public access — required so requests can reach the container at all.
+#    Firebase Auth (anonymous or otherwise) does NOT replace this binding:
+#    Firebase-issued tokens are not GCP IAM principals, so Cloud Run would
+#    reject every request at this layer before your app-level Firebase
+#    token check ever runs. Access control for Firebase users happens
+#    INSIDE the app (see utils.validate_key), not here.
+#
+#    Only remove/replace this block if you switch to IAP, which integrates
+#    with Cloud Run's IAM layer directly (requires a load balancer in front
+#    of this service — see the Cloud Armor/rate-limiting discussion).
 # ---------------------------------------------------------------------------
 resource "google_cloud_run_v2_service_iam_member" "public_access" {
   project  = google_cloud_run_v2_service.app.project
@@ -83,6 +91,22 @@ resource "google_cloud_run_v2_service_iam_member" "public_access" {
   name     = google_cloud_run_v2_service.app.name
   role     = "roles/run.invoker"
   member   = "allUsers"
+}
+
+# ---------------------------------------------------------------------------
+# 4. Required for firebase_admin.auth.verify_id_token() calls in utils.py
+#    Grants the runtime SA Firebase Auth admin access, used by
+#    firebase_admin.auth.verify_id_token() in utils.py to validate guest
+#    session tokens on each request.
+#    NOTE: verify_id_token() validates tokens against Firebase's public keys
+#    and may not actually require this role — it's broader than strictly
+#    needed (firebaseauth.admin also grants user-management permissions).
+#    Test removing this binding; keep only if verification fails without it.
+# ---------------------------------------------------------------------------
+resource "google_project_iam_member" "app_runtime_firebase" {
+  project = "genai-app-startupval-prototype"
+  role    = "roles/firebaseauth.admin"
+  member  = "serviceAccount:${google_service_account.app_runtime.email}"
 }
 
 output "service_url" {

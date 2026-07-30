@@ -7,6 +7,8 @@ import typing
 from google.genai import types
 import gradio as gr
 from PIL import Image
+import firebase_admin
+from firebase_admin import auth, credentials
 
 # Error message for invalid key.
 ker_error_msg = """Please open the app from
@@ -84,8 +86,48 @@ next_steps_html = """
 </ul>
 """
 
+firebase_head = """
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged } 
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-def validate_key(request):
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyA35H4hzBnPncY3JZTEUwKTk0UP-1q6B1c",
+    authDomain: "genai-app-startupval-prototype.firebaseapp.com",
+    projectId: "genai-app-startupval-prototype",
+    storageBucket: "genai-app-startupval-prototype.firebasestorage.app",
+    messagingSenderId: "1088129598702",
+    appId: "1:1088129598702:web:afde94e00f83158e7f1fff",
+    measurementId: "G-J6B8H4CZVN"
+  };
+  
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  signInAnonymously(auth);
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) window.__firebaseToken = await user.getIdToken();
+  });
+
+  const originalFetch = window.fetch;
+  window.fetch = function(...args) {
+    if (window.__firebaseToken) {
+      args[1] = args[1] || {};
+      args[1].headers = { ...(args[1].headers || {}), 'Authorization': `Bearer ${window.__firebaseToken}` };
+    }
+    return originalFetch.apply(this, args);
+  };
+</script>
+"""
+
+# Uses the Cloud Run runtime SA automatically — no key file needed
+if not firebase_admin._apps:
+  firebase_admin.initialize_app()
+
+def validate_key_default(request):
   """Help function to validate the key.
 
   Args:
@@ -94,7 +136,7 @@ def validate_key(request):
   Returns:
     None if the key is valid, otherwise an error.
   """
-  secret_key = "ZzA88MUyvzrGYzu1UjhGxo0s9K1dN5xf"
+  secret_key = "dummy_ZzA88MUyvzrGYzu1UjhGxo0s9K1dN5xf"
 
   if not secret_key:
     return None
@@ -110,7 +152,17 @@ def validate_key(request):
 
   if error_title is not None:
     raise gr.Error(ker_error_msg, None, title=error_title)
-
+  
+def validate_key(request):
+    """Validates the Firebase ID token from the Authorization header."""
+    auth_header = request.headers.get("authorization", "")
+    if not auth_header.startswith("Bearer "):
+      raise gr.Error("Please refresh the page to establish a session.", None, title="[Authorization error] No token provided")
+    id_token = auth_header.split("Bearer ")[1]
+    try:
+        decoded = auth.verify_id_token(id_token)
+    except Exception:
+      raise gr.Error("Your session has expired or is invalid. Please refresh the page.", None, title="[Authorization error] Invalid token")
 
 def get_part_from_file(file):
   """Help function to get the part from a file."""

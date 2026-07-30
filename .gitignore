@@ -21,3 +21,17 @@ override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+
+# virtual environment files
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
