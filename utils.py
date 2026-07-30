@@ -111,12 +111,28 @@ firebase_head = """
   onAuthStateChanged(auth, async (user) => {
     if (user) window.__firebaseToken = await user.getIdToken();
   });
-
+  // Intercept window.fetch to inject the authentication token
   const originalFetch = window.fetch;
-  window.fetch = function(...args) {
+  window.fetch = async function(...args) {
+    let resource = args[0];
+    let options = args[1] || {};
+
     if (window.__firebaseToken) {
-      args[1] = args[1] || {};
-      args[1].headers = { ...(args[1].headers || {}), 'Authorization': `Bearer ${window.__firebaseToken}` };
+      if (resource instanceof Request) {
+        // If args[0] is a Request object, set headers directly on it to prevent losing original headers like Content-Type
+        resource.headers.set('Authorization', `Bearer ${window.__firebaseToken}`);
+      } else {
+        // If args[0] is a URL string, modify the options headers dictionary
+        options.headers = options.headers || {};
+        if (options.headers instanceof Headers) {
+          options.headers.set('Authorization', `Bearer ${window.__firebaseToken}`);
+        } else if (Array.isArray(options.headers)) {
+          options.headers.push(['Authorization', `Bearer ${window.__firebaseToken}`]);
+        } else {
+          options.headers['Authorization'] = `Bearer ${window.__firebaseToken}`;
+        }
+        args[1] = options;
+      }
     }
     return originalFetch.apply(this, args);
   };
