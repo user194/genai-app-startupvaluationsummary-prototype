@@ -13,7 +13,8 @@ from google import genai
 from google.genai import types
 import gradio as gr
 import utils
-
+import auth
+import theme
 
 def generate(
     message,
@@ -21,7 +22,7 @@ def generate(
     request: gr.Request
 ):
   """Function to call the model based on the request."""
-  utils.validate_key(request)                   # raises gr.Error on failure
+  auth.validate_key(request)                   # raises gr.Error on failure
 
   client = genai.Client(                        # Instantiate the client object using the Google GenAI Python SDK
       vertexai=True,                            # This flag switches the backend from Gemini API to Google Cloud Vertex AI
@@ -130,9 +131,10 @@ Strictly adhere to the following guidelines:
       ],
       tools=tools,                            # This is the tools for the model
       system_instruction=[si_text1],          # This is the system instruction for the model
-      thinking_config=types.ThinkingConfig(   # This is the thinking config for the model
-        thinking_level="MEDIUM",              # This is the thinking level for the model
-      ),
+      # unsupported by google-genai 1.5.0 - ToDo: Upgrade to newer version of google-genai
+      #thinking_config=types.ThinkingConfig(   # This is the thinking config for the model
+      #  thinking_level="MEDIUM",              # This is the thinking level for the model
+      #),
   )
 
   results = []
@@ -148,7 +150,7 @@ Strictly adhere to the following guidelines:
       if results:
         yield results
 
-with gr.Blocks(theme=utils.custom_theme, head=utils.firebase_head) as demo:
+with gr.Blocks(theme=theme.custom_theme, head=utils.firebase_head) as demo:
   with gr.Row():
     gr.HTML(utils.public_access_warning)
   with gr.Row():

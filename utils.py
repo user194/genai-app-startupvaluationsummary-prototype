@@ -10,46 +10,6 @@ from PIL import Image
 import firebase_admin
 from firebase_admin import auth, credentials
 
-# Error message for invalid key.
-ker_error_msg = """Please open the app from
-<a target='_blank'
-  href='https://console.cloud.google.com/vertex-ai/studio/saved-prompts/locations/global/1906439088232202240?project=genai-app-startupval-prototype&deploy=true'>
-  Vertex AI Studio
-</a>, not Cloud Run.<br/><br/>
-Or, obtain the key from the "Manage App" dialog within Vertex AI Studio and
-append it to the url as "?key=SECRET_KEY"."""
-
-
-# Google's Blue color theme
-google_blue_color_hue = gr.themes.Color(
-    name="google_blue",
-    c50="#E8F0FE",
-    c100="#D2E3FC",
-    c200="#AECBFA",
-    c300="#8AB4F8",
-    c400="#669DF6",
-    c500="#4285F4",
-    c600="#1A73E8",
-    c700="#1967D2",
-    c800="#185ABC",
-    c900="#0f172a",
-    c950="#174EA6",
-)
-
-# Custom theme for the app.
-custom_theme = gr.themes.Default(
-    primary_hue=google_blue_color_hue,
-    secondary_hue=google_blue_color_hue,
-    font=[gr.themes.GoogleFont("Google Sans")]
-).set(
-    button_cancel_background_fill="*secondary_200",
-    button_cancel_background_fill_dark="*secondary_200",
-    button_cancel_background_fill_hover="*secondary_300",
-    button_cancel_background_fill_hover_dark="*secondary_300",
-    button_cancel_text_color="black",
-    button_cancel_text_color_dark="white",
-)
-
 public_access_warning = """
 <div style="background-color: #fffacd; border: 1px solid #eedc82; padding: 20px; margin: 20px; border-radius: 5px; color: #8b4513; font-weight: bold; text-align: center;">
   <span style="margin-right: 10px;">⚠️</span>
@@ -138,47 +98,6 @@ firebase_head = """
   };
 </script>
 """
-
-# Uses the Cloud Run runtime SA automatically — no key file needed
-if not firebase_admin._apps:
-  firebase_admin.initialize_app()
-
-def validate_key_default(request):
-  """Help function to validate the key.
-
-  Args:
-    request: The request object.
-
-  Returns:
-    None if the key is valid, otherwise an error.
-  """
-  secret_key = "dummy_ZzA88MUyvzrGYzu1UjhGxo0s9K1dN5xf"
-
-  if not secret_key:
-    return None
-
-  error_title = None
-  key = request.query_params.get("key", None)
-  if key is None:
-    error_title = "[Authorization error] No secret key provided in the URL"
-  elif key != secret_key:
-    error_title = (
-        f"""[Authorization error] The provided key ("{key}") is invalid."""
-    )
-
-  if error_title is not None:
-    raise gr.Error(ker_error_msg, None, title=error_title)
-  
-def validate_key(request):
-    """Validates the Firebase ID token from the Authorization header."""
-    auth_header = request.headers.get("authorization", "")
-    if not auth_header.startswith("Bearer "):
-      raise gr.Error("Please refresh the page to establish a session.", None, title="[Authorization error] No token provided")
-    id_token = auth_header.split("Bearer ")[1]
-    try:
-        decoded = auth.verify_id_token(id_token)
-    except Exception:
-      raise gr.Error("Your session has expired or is invalid. Please refresh the page.", None, title="[Authorization error] Invalid token")
 
 def get_part_from_file(file):
   """Help function to get the part from a file."""

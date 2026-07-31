@@ -79,7 +79,7 @@ resource "google_cloud_run_v2_service" "app" {
 #    Firebase-issued tokens are not GCP IAM principals, so Cloud Run would
 #    reject every request at this layer before your app-level Firebase
 #    token check ever runs. Access control for Firebase users happens
-#    INSIDE the app (see utils.validate_key), not here.
+#    INSIDE the app (see auth.validate_key), not here.
 #
 #    Only remove/replace this block if you switch to IAP, which integrates
 #    with Cloud Run's IAM layer directly (requires a load balancer in front
