@@ -110,7 +110,7 @@ Strictly adhere to the following guidelines:
   generate_content_config = types.GenerateContentConfig( # This is the generate content config for the model
       temperature=0.3,                         # This is the temperature for the model
       top_p=0.95,                              # This is the top p for the model
-      max_output_tokens=2048,                  # This is the max output tokens for the model
+      max_output_tokens=4096,                  # Specify the max output tokens usage
       safety_settings=[
           types.SafetySetting(
               category="HARM_CATEGORY_HATE_SPEECH",
