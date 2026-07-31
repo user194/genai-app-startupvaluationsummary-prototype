@@ -10,6 +10,12 @@ from PIL import Image
 import firebase_admin
 from firebase_admin import auth, credentials
 
+info_note = """
+<div style="background-color: #E8F0FE; border: 1px solid #AECBFA; padding: 16px; margin: 20px; border-radius: 5px; color: #185ABC; text-align: center;">
+  <span style="margin-right: 8px;">🔒</span>
+  You're browsing as a guest. No personal data is stored.
+</div>"""
+
 public_access_warning = """
 <div style="background-color: #fffacd; border: 1px solid #eedc82; padding: 20px; margin: 20px; border-radius: 5px; color: #8b4513; font-weight: bold; text-align: center;">
   <span style="margin-right: 10px;">⚠️</span>
