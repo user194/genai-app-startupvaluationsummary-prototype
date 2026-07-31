@@ -171,12 +171,13 @@ with gr.Blocks(theme=theme.custom_theme, head=utils.firebase_head) as demo:
               type="messages",
               multimodal=True,
               examples=utils.chat_examples,
-              fill_height=True,                        # makes chat window fill available vertical space
+
               stop_btn="⏹️",
               chatbot=gr.Chatbot(
                   show_copy_button=True,               # lets users copy responses easily
                   avatar_images=(None, "./static/images/bot_avatar.png"),  # custom avatars
                   type="messages",
+                  height="75vh"                        # flexible height
               ),
           )
   demo.launch(show_error=True)
