@@ -161,11 +161,22 @@ with gr.Blocks(theme=theme.custom_theme, head=utils.firebase_head) as demo:
         gr.HTML(utils.app_intro_html)
 
     with gr.Column(scale=2, variant="panel"):
-      gr.ChatInterface(
-          fn=generate,
-          title="🚀Startup Valuation Advisor - Prototype",
-          type="messages",
-          multimodal=True,
-          examples=utils.chat_examples,
-      )
+      with gr.Row():
+        gr.Markdown("# 🚀Startup Valuation Advisor - Prototype")
+      with gr.Row():
+        with gr.Column(scale=1):
+          gr.ChatInterface(
+              fn=generate,
+              #title="🚀Startup Valuation Advisor - Prototype",
+              type="messages",
+              multimodal=True,
+              examples=utils.chat_examples,
+              fill_height=True,                        # makes chat window fill available vertical space
+              stop_btn="⏹️",
+              chatbot=gr.Chatbot(
+                  show_copy_button=True,               # lets users copy responses easily
+                  avatar_images=(None, "./static/images/bot_avatar.png"),  # custom avatars
+                  type="messages",
+              ),
+          )
   demo.launch(show_error=True)
