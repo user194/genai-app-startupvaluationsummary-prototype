@@ -52,6 +52,23 @@ next_steps_html = """
 </ul>
 """
 
+app_intro_html = """
+<p>Get instant, VC-style feedback on your startup's fundraising position.</p>
+<p>Paste your company details — stage, metrics, team background, and
+funding ask — and get:</p>
+<ul style="list-style-position: outside; margin-left: 1em;">
+  <li>A quick read on your valuation position</li>
+  <li>Key risks a VC would flag</li>
+  <li>Concrete next steps to strengthen your pitch</li>
+</ul>
+<p>Try it with a real scenario, or use the example in the chat to see
+how it works.</p>
+<p style="margin-top: 24px; font-size: 0.85em; color: #5f6368;">
+  Built with Vertex AI (Gemini) + Gradio, deployed on Cloud Run with
+  Firebase-authenticated guest sessions.
+</p>
+"""
+
 firebase_head = """
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -104,6 +121,29 @@ firebase_head = """
   };
 </script>
 """
+
+chat_examples = [
+    {"text": (
+        "Founder inquiry received:\n"
+        "\"Hi, this is Priya from NimbusCart (a D2C logistics startup). "
+        "We're raising a seed round, targeting $2M. Currently at $45K MRR, "
+        "growing about 8% month over month. We have 3 co-founders — I was "
+        "previously at Cymbalkart supply chain, my co-founder was at Knightmotive ops. "
+        "We've got 120 paying merchants on the platform. Not sure how "
+        "investors will value us, we haven't set a target valuation yet.\"\n\n"
+        "Extract the following details:\n"
+        "- Founder Name\n- Company Name\n- Industry/Sector\n- Funding Stage\n"
+        "- Funding Target\n- Current MRR\n- Growth Rate\n- Team Background\n"
+        "- Key Traction Metric\n- Target Valuation"
+    )},
+    {"text": (
+        "We're a B2B SaaS company, 18 months in, $300K ARR, 15% MoM growth, "
+        "8% monthly churn, $45K burn/month with 4 months runway. 2 technical "
+        "co-founders, no dedicated sales team, all founder-led sales so far. "
+        "Raising $2M seed at $10M pre-money — is that valuation realistic "
+        "given our metrics?"
+    )},
+]
 
 def get_part_from_file(file):
   """Help function to get the part from a file."""

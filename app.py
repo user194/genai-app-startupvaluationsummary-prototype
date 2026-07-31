@@ -158,16 +158,14 @@ with gr.Blocks(theme=theme.custom_theme, head=utils.firebase_head) as demo:
       with gr.Row():
         gr.HTML("<h2>Welcome to Vertex AI GenAI App!</h2>")
       with gr.Row():
-        gr.HTML("""This prototype was built using your Vertex AI Studio prompt.
-            Follow the steps and recommendations below to begin.""")
-      with gr.Row():
-        gr.HTML(utils.next_steps_html)
+        gr.HTML(utils.app_intro_html)
 
     with gr.Column(scale=2, variant="panel"):
       gr.ChatInterface(
           fn=generate,
-          title="Startup Valuation Summary - Prototype",
+          title="🚀Startup Valuation Advisor - Prototype",
           type="messages",
           multimodal=True,
+          examples=utils.chat_examples,
       )
   demo.launch(show_error=True)
