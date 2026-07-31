@@ -152,7 +152,7 @@ Strictly adhere to the following guidelines:
 
 with gr.Blocks(theme=theme.custom_theme, head=utils.firebase_head) as demo:
   with gr.Row():
-    gr.HTML(utils.public_access_warning)
+    gr.HTML(utils.info_note)
   with gr.Row():
     with gr.Column(scale=1):
       with gr.Row():
